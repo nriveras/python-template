@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+{% if publish_target == "pypi" %}
+  publish-pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      # Trusted publishing: PyPI exchanges this OIDC token for upload rights, so no
+      # PyPI token is stored as a CI secret. One-time setup: add this repo as a
+      # "trusted publisher" for {{ project_slug }} at pypi.org/manage/project/{{ project_slug }}/settings/publishing/.
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: astral-sh/setup-uv@v4
+      - run: uv publish
+
+{% endif %}
+  github-release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - run: gh release create "{% raw %}${{ github.ref_name }}{% endraw %}" dist/* --generate-notes
+        env:
+          GH_TOKEN: {% raw %}${{ github.token }}{% endraw +%}
+{% if use_docker %}
+
+
+  docker:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: {% raw %}${{ github.actor }}{% endraw +%}
+          password: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw +%}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/{{ github_owner }}/{{ project_slug }}:{% raw %}${{ github.ref_name }}{% endraw +%}
+{% endif %}

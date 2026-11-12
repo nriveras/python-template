@@ -1,0 +1,51 @@
+# Checked by prek (a faster, drop-in reimplementation of pre-commit — same config format,
+# same hooks). Run `uv run prek run --all-files` to check everything once; `prek install`
+# (already done for you) makes it run automatically on every `git commit`.
+#
+# Versions below are pinned to what was current when this project was generated. Refresh
+# them periodically with `uv run prek autoupdate`.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  # Catches secrets (API keys, tokens, credentials) in anything staged for commit —
+  # content-based, so it isn't limited to files literally named ".env". The .gitignore
+  # entry for .env is still the first line of defense; this is the backstop for the case
+  # where a secret gets pasted into some other file, or committed with `git add -f`.
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.4
+    hooks:
+      - id: ruff-format
+      - id: ruff
+        args: [--fix]
+
+  # Runs through uv, so it resolves imports against this project's own dependencies
+  # (an isolated hook environment wouldn't have them installed).
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: v0.0.99
+    hooks:
+      - id: ty
+
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.24.0
+    hooks:
+      - id: markdownlint-cli2
+
+  # Flags dependencies with known high/critical severity vulnerabilities. --fail-on high
+  # keeps medium/low findings informational instead of blocking every commit on them.
+  - repo: https://github.com/pysentry/pysentry-pre-commit
+    rev: v0.5.0
+    hooks:
+      - id: pysentry
+        args: [--fail-on, high]

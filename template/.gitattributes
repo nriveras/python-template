@@ -1,0 +1,4 @@
+# Normalize line endings to LF everywhere, even if a contributor's Git/editor on Windows
+# would otherwise check files out as CRLF. Mixed line endings break shell scripts, Docker
+# builds, and make every line of a file show as changed in diffs.
+* text=auto eol=lf

@@ -1,0 +1,15 @@
+[project]
+site_name = "{{ project_name }}"
+site_description = "{{ description }}"
+site_author = "{{ author_name }}"
+{% if github_owner and github_owner != "your-github-username" %}
+site_url = "https://{{ github_owner }}.github.io/{{ project_slug }}/"
+repo_url = "https://github.com/{{ github_owner }}/{{ project_slug }}"
+{% endif %}
+docs_dir = "docs"
+site_dir = "site"
+
+nav = [
+  { "Home" = "index.md" },
+  { "API Reference" = "reference.md" },
+]

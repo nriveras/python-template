@@ -1,0 +1,12 @@
+# https://github.com/DavidAnson/markdownlint-cli2
+config:
+  default: true
+  MD013: false # line-length — prose wraps naturally, don't force hard line breaks
+  MD033: false # allow inline HTML (useful in README badges/collapsible sections)
+
+globs:
+  - "**/*.md"
+
+ignores:
+  - ".venv"
+  - "site"

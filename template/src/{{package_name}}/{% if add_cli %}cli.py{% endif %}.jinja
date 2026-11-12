@@ -1,0 +1,19 @@
+"""Command-line interface for {{ package_name }}."""
+
+import typer
+
+app = typer.Typer()
+
+
+@app.command()
+def main(name: str = "world") -> None:
+    """Greet someone.
+
+    Args:
+        name: Who to greet.
+    """
+    print(f"Hello, {name}!")
+
+
+if __name__ == "__main__":
+    app()

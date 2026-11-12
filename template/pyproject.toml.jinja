@@ -1,0 +1,64 @@
+[project]
+name = "{{ project_slug }}"
+version = "0.1.0"
+description = "{{ description }}"
+readme = "README.md"
+requires-python = ">={{ python_version }}"
+license = "{{ license }}"
+authors = [
+    { name = "{{ author_name }}", email = "{{ author_email }}" },
+]
+dependencies = [
+{% if add_cli %}
+    "typer>=0.15",
+{% endif %}
+]
+
+{% if add_cli %}
+[project.scripts]
+{{ project_slug }} = "{{ package_name }}.cli:app"
+
+{% endif %}
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "ty>=0.0.1a1",
+    "prek>=0.1",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+{% if use_docs %}
+    "zensical>=0.1",
+    "mkdocstrings-python>=1.12",
+{% endif %}
+]
+
+[build-system]
+requires = ["uv_build>=0.8,<0.9"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 88
+target-version = "py{{ python_version.replace('.', '') }}"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "D", "UP", "B"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+# ty reads `requires-python` above for its target Python version, so there's nothing to
+# repeat here. Add per-rule overrides under [tool.ty.rules] if a rule needs loosening,
+# e.g. `possibly-unbound-attribute = "ignore"`.
+
+[tool.pytest.ini_options]
+addopts = "--cov={{ package_name }} --cov-report=term-missing --cov-fail-under={{ coverage_threshold }}"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src/{{ package_name }}"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+]

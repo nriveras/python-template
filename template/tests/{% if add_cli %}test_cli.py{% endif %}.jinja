@@ -1,0 +1,14 @@
+"""Tests for the CLI."""
+
+from typer.testing import CliRunner
+
+from {{ package_name }}.cli import app
+
+runner = CliRunner()
+
+
+def test_main_default() -> None:
+    """Running with no arguments greets the world."""
+    result = runner.invoke(app)
+    assert result.exit_code == 0
+    assert "Hello, world!" in result.stdout

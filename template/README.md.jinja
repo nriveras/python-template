@@ -1,0 +1,48 @@
+# {{ project_name }}
+
+{% if description %}
+{{ description }}
+
+{% endif %}
+## Development
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependencies and the virtual environment.
+
+```bash
+uv sync                  # install dependencies + create .venv
+uv run pytest            # run tests
+uv run prek run --all-files   # run all code-quality checks
+```
+
+{% if add_cli %}
+## Usage
+
+```bash
+uv run {{ project_slug }} --help
+```
+
+{% endif %}
+{% if use_docs %}
+## Documentation
+
+```bash
+uv run zensical serve    # preview docs locally at http://localhost:8000
+```
+
+Published to GitHub Pages on every push to `main`. One-time setup: in the repo's
+Settings → Pages, set **Source** to "GitHub Actions".
+
+{% endif %}
+## Releasing
+
+Push a tag like `v0.1.0` to build, {% if publish_target == "pypi" %}publish to PyPI,{% else %}attach the build to a GitHub Release,{% endif %} and create a GitHub Release with the build attached{% if use_docker %}, plus a container image pushed to `ghcr.io/{{ github_owner }}/{{ project_slug }}`{% endif %}.
+{% if publish_target == "pypi" %}
+One-time setup before the first release: add this repo as a "trusted publisher" for
+`{{ project_slug }}` at
+[pypi.org/manage/project/{{ project_slug }}/settings/publishing](https://pypi.org/manage/project/{{ project_slug }}/settings/publishing/)
+(no PyPI token needs to be stored as a CI secret).
+{% endif %}
+
+## License
+
+{{ license }}{% if license == "Proprietary" %} — all rights reserved{% endif %}.

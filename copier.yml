@@ -1,0 +1,137 @@
+# Copier template configuration.
+#
+# This file IS the wizard: every top-level key that isn't prefixed with `_` becomes a
+# question Copier asks interactively (or accepts as --data key=value / -A for defaults).
+# See https://copier.readthedocs.io/en/stable/configuring/
+_min_copier_version: "9.19.0"
+_subdirectory: template
+
+# Only files that end in this suffix are rendered as Jinja templates; others are copied
+# verbatim. Keeping the default (.jinja) means plain files (e.g. .markdownlint-cli2.yaml)
+# don't need any suffix dance.
+_envops:
+  trim_blocks: true
+  lstrip_blocks: true
+  keep_trailing_newline: true
+
+_message_before_copy: |
+  Generating your Python project...
+
+  Answer the questions below. Press Enter to accept the default shown in [brackets].
+
+_message_after_copy: |
+  Done! Your project is in {{ _copier_conf.dst_path }}.
+
+  Next steps:
+    cd {{ project_slug }}
+    git status            # tasks already ran: git init, uv sync, prek install
+    uv run pytest
+
+  Later, to pull in template updates:
+    uvx copier update --trust
+
+# --- Questions -----------------------------------------------------------------------
+
+project_name:
+  type: str
+  help: "Project name (human-readable)?"
+  placeholder: "My Awesome Project"
+  validator: >-
+    {% if not project_name.strip() %}Project name cannot be empty{% endif %}
+
+project_slug:
+  type: str
+  help: "Project slug (PyPI / repo name)?"
+  default: "{{ project_name.lower().strip().replace(' ', '-').replace('_', '-') }}"
+  validator: >-
+    {% if not (project_slug | regex_search('^[a-z][a-z0-9-]*$')) %}
+    Slug must be lowercase, start with a letter, and contain only letters, digits and hyphens
+    {% endif %}
+
+package_name:
+  type: str
+  help: "Python package / import name?"
+  default: "{{ project_slug.replace('-', '_') }}"
+  validator: >-
+    {% if not (package_name | regex_search('^[a-z][a-z0-9_]*$')) %}
+    Package name must be lowercase, start with a letter, and contain only letters, digits
+    and underscores
+    {% endif %}
+
+description:
+  type: str
+  help: "Short description?"
+  default: ""
+
+author_name:
+  type: str
+  help: "Author name?"
+  default: "Your Name"
+
+author_email:
+  type: str
+  help: "Author email?"
+  default: "you@example.com"
+
+github_owner:
+  type: str
+  help: "GitHub username or org this project will live under?"
+  default: "your-github-username"
+
+python_version:
+  type: str
+  help: "Python version?"
+  choices:
+    - "3.12"
+    - "3.13"
+    - "3.14"
+  default: "3.13"
+
+license:
+  type: str
+  help: "License?"
+  choices:
+    - MIT
+    - Apache-2.0
+    - BSD-3-Clause
+    - Proprietary
+  default: MIT
+
+add_cli:
+  type: bool
+  help: "Add a command-line interface (Typer)?"
+  default: false
+
+use_docker:
+  type: bool
+  help: "Include a Dockerfile and container build job?"
+  default: "{{ add_cli }}"
+
+use_docs:
+  type: bool
+  help: "Include a documentation site (zensical) and Pages deploy job?"
+  default: true
+
+publish_target:
+  type: str
+  help: "Where should releases publish the Python package?"
+  choices:
+    - pypi
+    - github-release
+  default: pypi
+
+coverage_threshold:
+  type: int
+  help: "Minimum test coverage percentage (CI fails below this)?"
+  default: 80
+
+# --- Post-generation tasks -------------------------------------------------------------
+# These run in the system shell (cmd.exe on Windows), so no bash-isms (no `&&` chaining
+# tricks, no `[ -f ... ]`, no `rm -rf`). Each task is its own plain command for that reason.
+_tasks:
+  - command: "git init"
+    working_directory: "{{ _copier_conf.dst_path }}"
+  - command: "uv sync"
+    working_directory: "{{ _copier_conf.dst_path }}"
+  - command: "uv run prek install"
+    working_directory: "{{ _copier_conf.dst_path }}"

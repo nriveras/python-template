@@ -1,0 +1,16 @@
+[project]
+name = "python-template"
+version = "0.1.0"
+description = "Copier template for Python projects (uv, ruff, ty, prek, pysentry, zensical, GitHub Actions)"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "copier>=9.19",
+    "pytest>=8.3",
+    "pytest-copie>=0.3",
+]
+
+[tool.uv]
+package = false
