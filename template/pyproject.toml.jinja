@@ -41,10 +41,69 @@ line-length = 88
 target-version = "py{{ python_version.replace('.', '') }}"
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "N", "D", "UP", "B"]
+# One rule set per line. To enable an optional set below, delete its leading `#`.
+# Full catalogue: https://docs.astral.sh/ruff/rules/
+select = [
+    "E",      # pycodestyle errors: PEP 8 layout (indentation, whitespace, statements)
+    "W",      # pycodestyle warnings: trailing whitespace, blank lines at end of file
+    "F",      # Pyflakes: real bugs - undefined names, unused imports/variables
+    "I",      # isort: sorts and groups imports
+    "N",      # pep8-naming: snake_case functions, PascalCase classes, UPPER_CASE constants
+    "D",      # pydocstyle: docstring presence and format (convention set below)
+    "UP",     # pyupgrade: rewrites outdated syntax for `target-version`
+    "B",      # flake8-bugbear: likely bugs (mutable default args, loop-variable closures)
+
+    # --- Bugs and correctness ---
+    # "A",      # flake8-builtins: names shadowing builtins (`list`, `id`, `type`)
+    # "ARG",    # flake8-unused-arguments: arguments never used in the body
+    # "BLE",    # flake8-blind-except: `except Exception:` swallowing every error
+    # "DTZ",    # flake8-datetimez: timezone-naive `datetime` usage
+    # "PL",     # Pylint: large set of error/refactor/convention checks
+    # "RUF",    # Ruff-specific: ambiguous unicode, mutable class defaults, unused noqa
+    # "TRY",    # tryceratops: exception-handling anti-patterns
+
+    # --- Simplification and modern idioms ---
+    # "C4",     # flake8-comprehensions: unnecessary list()/dict() calls, better comprehensions
+    # "SIM",    # flake8-simplify: collapsible ifs, needless bool returns, contextlib.suppress
+    # "RET",    # flake8-return: needless `else` after `return`, inconsistent returns
+    # "PIE",    # flake8-pie: misc. unnecessary code (stray `pass`, duplicate fields)
+    # "PTH",    # flake8-use-pathlib: prefer `pathlib.Path` over `os.path`
+    # "FURB",   # refurb: replace older idioms with modern equivalents
+    # "FLY",    # flynt: static `"".join(...)` -> f-string
+    # "C90",    # mccabe: too-complex functions (see [tool.ruff.lint.mccabe])
+
+    # --- Performance ---
+    # "PERF",   # Perflint: slow patterns in loops (append in loop -> comprehension)
+
+    # --- Security ---
+    # "S",      # flake8-bandit: `shell=True`, hardcoded passwords, unsafe yaml/pickle
+
+    # --- Typing ---
+    # "ANN",    # flake8-annotations: require type hints on function signatures
+    # "TC",     # flake8-type-checking: move typing-only imports under `if TYPE_CHECKING:`
+
+    # --- Tests ---
+    # "PT",     # flake8-pytest-style: pytest idioms (fixtures, parametrize, raises)
+
+    # --- Logging and leftover debug code ---
+    # "T20",    # flake8-print: forbid `print()` (use logging)
+    # "T10",    # flake8-debugger: leftover `breakpoint()` / `pdb`
+    # "LOG",    # flake8-logging: logging misuse (e.g. `logging.getLogger()` without name)
+    # "G",      # flake8-logging-format: no f-strings in log calls (lazy formatting)
+    # "ERA",    # eradicate: commented-out code
+    # "TD",     # flake8-todos: TODO comments must have author and link
+    # "FIX",    # flake8-fixme: flag any TODO/FIXME/XXX left in code
+
+    # Avoid "COM" and "Q": they fight `ruff format`, which already owns commas and quotes.
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+# Uncomment if you enable "S" or "PT" above: `assert` is how pytest checks things, so
+# allow it in tests (S101 otherwise flags every one).
+# [tool.ruff.lint.per-file-ignores]
+# "tests/**" = ["S101"]
 
 # ty reads `requires-python` above for its target Python version, so there's nothing to
 # repeat here. Add per-rule overrides under [tool.ty.rules] if a rule needs loosening,
