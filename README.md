@@ -56,5 +56,3 @@ generated project (see `_subdirectory: template` in `copier.yml`).
 uv sync                 # install this repo's own dev dependencies
 uv run pytest           # render the template with various answers and check the result
 ```
-
-See `tmp/ROADMAP.md` for the reasoning behind specific decisions (gitignored, local only).
