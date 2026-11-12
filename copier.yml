@@ -130,8 +130,5 @@ coverage_threshold:
 # tricks, no `[ -f ... ]`, no `rm -rf`). Each task is its own plain command for that reason.
 _tasks:
   - command: "git init"
-    working_directory: "{{ _copier_conf.dst_path }}"
   - command: "uv sync"
-    working_directory: "{{ _copier_conf.dst_path }}"
   - command: "uv run prek install"
-    working_directory: "{{ _copier_conf.dst_path }}"
