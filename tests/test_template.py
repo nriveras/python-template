@@ -17,6 +17,7 @@ Two tiers, on purpose:
 import subprocess
 from pathlib import Path
 
+import pytest
 from copier import run_copy
 
 TEMPLATE_DIR = Path(__file__).parent.parent
@@ -125,6 +126,20 @@ def test_slug_and_package_name_are_derived_consistently(tmp_path: Path) -> None:
     assert "project_slug: my-cool-project" in answers
     assert "package_name: my_cool_project" in answers
     assert (project / "src" / "my_cool_project" / "__init__.py").exists()
+
+
+@pytest.mark.parametrize("name", ["test", "json"])
+def test_package_name_shadowing_stdlib_is_rejected(tmp_path: Path, name: str) -> None:
+    """A package name matching a stdlib module must be rejected at generation time.
+
+    The stdlib comes before site-packages on `sys.path`, so e.g. `import json` would load
+    the stdlib module instead of the generated package — a confusing, hard-to-diagnose bug
+    that's much cheaper to catch here than after someone's already imported their own code.
+    `test` is covered because it's added to the validator's list by hand (CPython's own
+    `sys.stdlib_module_names` omits it); `json` is covered because it comes from that list.
+    """
+    with pytest.raises(ValueError, match="standard-library"):
+        render(tmp_path, package_name=name)
 
 
 def test_generated_project_passes_its_own_checks(tmp_path: Path) -> None:
