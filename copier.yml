@@ -130,5 +130,9 @@ coverage_threshold:
 # tricks, no `[ -f ... ]`, no `rm -rf`). Each task is its own plain command for that reason.
 _tasks:
   - command: "git init"
+  # Pin hooks to this repo's own .git/hooks, overriding any core.hooksPath the developer's
+  # machine sets globally (e.g. a personal dotfiles setup) — --local scopes this to just this
+  # project, it does not touch their global git config.
+  - command: "git config --local core.hooksPath .git/hooks"
   - command: "uv sync"
-  - command: "uv run prek install"
+  - command: "uv run prek install --force"
